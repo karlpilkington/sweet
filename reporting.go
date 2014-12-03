@@ -160,11 +160,9 @@ func getDeviceEmailReport(device DeviceAccess, Opts SweetOptions) (*Report, erro
 	report.Device = device
 	configStat, err := os.Stat(device.Hostname)
 	if err != nil {
-		response := make(chan string)
-		Opts.ErrorCacheRequests <- &ErrorCacheRequest{Hostname: device.Hostname, Response: response}
-		errorStatus := <-response
-		if len(errorStatus) > 0 {
-			report.StatusMessage = errorStatus
+		stat := Opts.Status.Get(device.Hostname)
+		if len(stat.Message) > 0 {
+			report.StatusMessage = stat.Message
 		} else {
 			report.StatusMessage = fmt.Sprintf("Config missing for %s", device.Hostname)
 		}
@@ -173,11 +171,9 @@ func getDeviceEmailReport(device DeviceAccess, Opts SweetOptions) (*Report, erro
 	report.CollectedTime = configStat.ModTime()
 	lastGlobalCommit, err := getLastGlobalCommit()
 	if err != nil {
-		response := make(chan string)
-		Opts.ErrorCacheRequests <- &ErrorCacheRequest{Hostname: device.Hostname, Response: response}
-		errorStatus := <-response
-		if len(errorStatus) > 0 {
-			report.StatusMessage = errorStatus
+		stat := Opts.Status.Get(device.Hostname)
+		if len(stat.Message) > 0 {
+			report.StatusMessage = stat.Message
 		} else {
 			report.StatusMessage = err.Error()
 		}
@@ -185,11 +181,9 @@ func getDeviceEmailReport(device DeviceAccess, Opts SweetOptions) (*Report, erro
 	}
 	lastDeviceCommit, err := getLastDeviceCommit(device.Hostname)
 	if err != nil {
-		response := make(chan string)
-		Opts.ErrorCacheRequests <- &ErrorCacheRequest{Hostname: device.Hostname, Response: response}
-		errorStatus := <-response
-		if len(errorStatus) > 0 {
-			report.StatusMessage = errorStatus
+		stat := Opts.Status.Get(device.Hostname)
+		if len(stat.Message) > 0 {
+			report.StatusMessage = stat.Message
 		} else {
 			report.StatusMessage = err.Error()
 		}
@@ -201,11 +195,9 @@ func getDeviceEmailReport(device DeviceAccess, Opts SweetOptions) (*Report, erro
 		prevDeviceCommit, err := getPrevDeviceCommit(device.Hostname)
 		report.Diff, report.Added, report.Removed, err = getDiff(device, prevDeviceCommit)
 		if err != nil {
-			response := make(chan string)
-			Opts.ErrorCacheRequests <- &ErrorCacheRequest{Hostname: device.Hostname, Response: response}
-			errorStatus := <-response
-			if len(errorStatus) > 0 {
-				report.StatusMessage = errorStatus
+			stat := Opts.Status.Get(device.Hostname)
+			if len(stat.Message) > 0 {
+				report.StatusMessage = stat.Message
 			} else {
 				report.StatusMessage = err.Error()
 			}

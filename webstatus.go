@@ -92,11 +92,9 @@ func getDeviceWebReport(device DeviceAccess, Opts SweetOptions) (*Report, error)
 	}
 	report.Web.CSSID = reg.ReplaceAllString(device.Hostname, "")
 
-	response := make(chan string)
-	Opts.ErrorCacheRequests <- &ErrorCacheRequest{Hostname: device.Hostname, Response: response}
-	errorStatus := <-response
-	if len(errorStatus) > 0 {
-		report.StatusMessage = errorStatus
+	stat := Opts.Status.Get(device.Hostname)
+	if len(stat.Message) > 0 {
+		report.StatusMessage = stat.Message
 		return report, err
 	}
 

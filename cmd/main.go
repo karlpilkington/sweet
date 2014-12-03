@@ -49,13 +49,6 @@ func main() {
 		Opts.LogFatal(err.Error())
 	}
 
-	ec, err := sweet.RunErrorCache()
-	if err != nil {
-		Opts.LogFatal(err.Error())
-	}
-	Opts.ErrorCacheUpdates = ec.Updates
-	Opts.ErrorCacheRequests = ec.Requests
-
 	go sweet.RunWebserver(&Opts)
 
 	sweet.RunCollectors(&Opts)
@@ -64,6 +57,9 @@ func main() {
 //// Read CLI flags and config file
 func setupOptions() (sweet.SweetOptions, error) {
 	Opts := sweet.SweetOptions{}
+	Opts.Status = &sweet.Status{}
+	Opts.Status.Status = make(map[string]sweet.DeviceStatus)
+
 	arguments, err := docopt.Parse(usage, nil, true, version, false)
 	if err != nil {
 		return Opts, err
